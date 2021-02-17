@@ -27,6 +27,12 @@ contract UniswapWithdrawHelper is WithdrawHelper {
     address router;
   }
 
+  function getCallData(
+    SwapData calldata swapData
+  ) public pure returns (bytes memory) {
+    return abi.encode(swapData);
+  }
+
   function execute(WithdrawData calldata wd, uint256 actualAmount) override external {
     SwapData memory swapData = abi.decode(wd.callData, (SwapData));
 
