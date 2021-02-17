@@ -1,15 +1,15 @@
 import { ethers } from "hardhat";
-import { Signer } from "ethers";
+import chai from "chai";
+import { solidity } from "ethereum-waffle";
 
-describe("Token", function () {
-  let accounts: Signer[];
+chai.use(solidity);
+const { expect } = chai;
 
-  beforeEach(async function () {
-    accounts = await ethers.getSigners();
-  });
+describe("Counter", () => {
+  beforeEach(async () => {});
 
-  it("should do something right", async function () {
-    // await ethers.getContractFactory()
-    // Do something with the accounts
+  // 4
+  describe("count up", async () => {
+    it("should count up", async () => {});
   });
 });

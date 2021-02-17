@@ -1,4 +1,7 @@
-node_modules
-artifacts
-typechain
-cache
+node_modules/
+cache/
+build/
+typechain/
+artifacts/
+coverage*
+.env
