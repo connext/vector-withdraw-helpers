@@ -2,53 +2,76 @@
 pragma solidity >=0.5.0;
 pragma experimental ABIEncoderV2;
 
-import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
+import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 import '@uniswap/v2-core/contracts/interfaces/IERC20.sol';
 
 import "./WithdrawHelper.sol";
 
 contract UniswapWithdrawHelper is WithdrawHelper {
   event Swap (
-    address pair,
-    address token0,
-    address token1,
-    uint amount0Out,
-    uint amount1Out,
+    address tokenA,
+    address tokenB,
+    uint amountIn,
+    uint amountOutMin,
     address to,
-    bytes data,
-    uint256 actualAmount
+    address router,
+    uint[] amounts
   );
 
   struct SwapData {
-    address pair;
-    address token0;
-    address token1;
-    uint amount0Out;
-    uint amount1Out;
+    uint amountIn;
+    uint amountOutMin;
+    address tokenA;
+    address tokenB;
     address to;
-    bytes data;
+    address router;
   }
 
   function execute(WithdrawData calldata wd, uint256 actualAmount) override external {
     SwapData memory swapData = abi.decode(wd.callData, (SwapData));
 
-    if (swapData.token0 != address(0)) {
-      IERC20(swapData.token0).approve(swapData.pair, swapData.amount0Out);
+    require(swapData.amountIn <= actualAmount, "UniswapWithdrawHelper: amountIn is not <= actualAmount");
+    require(swapData.tokenA != swapData.tokenB, "UniswapWithdrawHelper: tokens cannot be the same");
+
+    if (swapData.tokenA != address(0)) {
+      require(IERC20(swapData.tokenA).approve(swapData.router, swapData.amountIn), "UniswapWithdrawHelper: tokenA approve failed.");
     }
 
-    if (swapData.token1 != address(0)) {
-      IERC20(swapData.token1).approve(swapData.pair, swapData.amount1Out);
+    uint[] memory amounts;
+    address[] memory path = [swapData.tokenA, swapData.tokenB];
+    if (swapData.tokenA == address(0)) {
+      amounts = IUniswapV2Router02(swapData.router).swapExactETHForTokens(
+        swapData.amountOutMin, 
+        path, 
+        swapData.to, 
+        block.timestamp
+      );
+    } else if (swapData.tokenB == address(0)) {
+      amounts = IUniswapV2Router02(swapData.router).swapExactTokensForETH(
+        swapData.amountIn,
+        swapData.amountOutMin, 
+        path, 
+        swapData.to, 
+        block.timestamp
+      );
+    } else {
+      amounts = IUniswapV2Router02(swapData.router).swapExactTokensForTokens(
+        swapData.amountIn,
+        swapData.amountOutMin, 
+        path, 
+        swapData.to, 
+        block.timestamp
+      );
     }
 
-    IUniswapV2Pair(swapData.pair).swap(swapData.amount0Out, swapData.amount1Out, swapData.to, swapData.data);
     emit Swap(
-      swapData.pair, 
-      swapData.token0, 
-      swapData.token1, 
-      swapData.amount0Out, 
-      swapData.amount1Out, 
+      swapData.tokenA, 
+      swapData.tokenB, 
+      swapData.amountIn, 
+      swapData.amountOutMin, 
       swapData.to, 
-      swapData.data, actualAmount
+      swapData.router, 
+      amounts
     );
   }
 }
