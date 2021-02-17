@@ -32,6 +32,7 @@ const config: HardhatUserConfig = {
     compilers: [
       { version: "0.7.3", settings: {} },
       { version: "0.6.6", settings: {} },
+      { version: "0.5.16", settings: {} },
     ],
   },
   namedAccounts: {
