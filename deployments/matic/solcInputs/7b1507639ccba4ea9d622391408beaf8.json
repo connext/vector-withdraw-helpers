@@ -1,0 +1,50 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/UniswapWithdrawHelper/ICMCWithdraw.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.7.1;\npragma experimental ABIEncoderV2;\n\nstruct WithdrawData {\n    address channelAddress;\n    address assetId;\n    address payable recipient;\n    uint256 amount;\n    uint256 nonce;\n    address callTo;\n    bytes callData;\n}\n\ninterface ICMCWithdraw {\n    function getWithdrawalTransactionRecord(WithdrawData calldata wd)\n        external\n        view\n        returns (bool);\n\n    function withdraw(\n        WithdrawData calldata wd,\n        bytes calldata aliceSignature,\n        bytes calldata bobSignature\n    ) external;\n}\n"
+    },
+    "contracts/UniswapWithdrawHelper/WithdrawHelper.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.7.1;\npragma experimental ABIEncoderV2;\n\nimport \"./ICMCWithdraw.sol\";\n\ninterface WithdrawHelper {\n    function execute(WithdrawData calldata wd, uint256 actualAmount) external;\n}\n"
+    },
+    "contracts/UniswapWithdrawHelper/UniswapWithdrawHelper.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity >=0.5.0;\npragma experimental ABIEncoderV2;\n\nimport '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';\nimport '@uniswap/v2-core/contracts/interfaces/IERC20.sol';\n\nimport \"./WithdrawHelper.sol\";\n\ncontract UniswapWithdrawHelper is WithdrawHelper {\n  event Swap (\n    address tokenA,\n    address tokenB,\n    uint amountIn,\n    uint amountOutMin,\n    address to,\n    address router,\n    uint[] amounts\n  );\n\n  struct SwapData {\n    uint amountIn;\n    uint amountOutMin;\n    address tokenA;\n    address tokenB;\n    address[] path;\n    address to;\n    address router;\n  }\n\n  function getCallData(\n    SwapData calldata swapData\n  ) public pure returns (bytes memory) {\n    return abi.encode(swapData);\n  }\n\n  function execute(WithdrawData calldata wd, uint256 actualAmount) override external {\n    SwapData memory swapData = abi.decode(wd.callData, (SwapData));\n\n    require(swapData.amountIn <= actualAmount, \"UniswapWithdrawHelper: amountIn is not <= actualAmount\");\n    require(swapData.tokenA != swapData.tokenB, \"UniswapWithdrawHelper: tokens cannot be the same\");\n\n    if (swapData.tokenA != address(0)) {\n      require(IERC20(swapData.tokenA).approve(swapData.router, swapData.amountIn), \"UniswapWithdrawHelper: tokenA approve failed.\");\n    }\n\n    uint[] memory amounts;\n    if (swapData.tokenA == address(0)) {\n      amounts = IUniswapV2Router02(swapData.router).swapExactETHForTokens(\n        swapData.amountOutMin, \n        swapData.path, \n        swapData.to, \n        block.timestamp\n      );\n    } else if (swapData.tokenB == address(0)) {\n      amounts = IUniswapV2Router02(swapData.router).swapExactTokensForETH(\n        swapData.amountIn,\n        swapData.amountOutMin, \n        swapData.path, \n        swapData.to, \n        block.timestamp\n      );\n    } else {\n      amounts = IUniswapV2Router02(swapData.router).swapExactTokensForTokens(\n        swapData.amountIn,\n        swapData.amountOutMin, \n        swapData.path, \n        swapData.to, \n        block.timestamp\n      );\n    }\n\n    emit Swap(\n      swapData.tokenA, \n      swapData.tokenB, \n      swapData.amountIn, \n      swapData.amountOutMin, \n      swapData.to, \n      swapData.router, \n      amounts\n    );\n  }\n}\n\n"
+    },
+    "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol": {
+      "content": "pragma solidity >=0.6.2;\n\nimport './IUniswapV2Router01.sol';\n\ninterface IUniswapV2Router02 is IUniswapV2Router01 {\n    function removeLiquidityETHSupportingFeeOnTransferTokens(\n        address token,\n        uint liquidity,\n        uint amountTokenMin,\n        uint amountETHMin,\n        address to,\n        uint deadline\n    ) external returns (uint amountETH);\n    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(\n        address token,\n        uint liquidity,\n        uint amountTokenMin,\n        uint amountETHMin,\n        address to,\n        uint deadline,\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\n    ) external returns (uint amountETH);\n\n    function swapExactTokensForTokensSupportingFeeOnTransferTokens(\n        uint amountIn,\n        uint amountOutMin,\n        address[] calldata path,\n        address to,\n        uint deadline\n    ) external;\n    function swapExactETHForTokensSupportingFeeOnTransferTokens(\n        uint amountOutMin,\n        address[] calldata path,\n        address to,\n        uint deadline\n    ) external payable;\n    function swapExactTokensForETHSupportingFeeOnTransferTokens(\n        uint amountIn,\n        uint amountOutMin,\n        address[] calldata path,\n        address to,\n        uint deadline\n    ) external;\n}\n"
+    },
+    "@uniswap/v2-core/contracts/interfaces/IERC20.sol": {
+      "content": "pragma solidity >=0.5.0;\n\ninterface IERC20 {\n    event Approval(address indexed owner, address indexed spender, uint value);\n    event Transfer(address indexed from, address indexed to, uint value);\n\n    function name() external view returns (string memory);\n    function symbol() external view returns (string memory);\n    function decimals() external view returns (uint8);\n    function totalSupply() external view returns (uint);\n    function balanceOf(address owner) external view returns (uint);\n    function allowance(address owner, address spender) external view returns (uint);\n\n    function approve(address spender, uint value) external returns (bool);\n    function transfer(address to, uint value) external returns (bool);\n    function transferFrom(address from, address to, uint value) external returns (bool);\n}\n"
+    },
+    "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol": {
+      "content": "pragma solidity >=0.6.2;\n\ninterface IUniswapV2Router01 {\n    function factory() external pure returns (address);\n    function WETH() external pure returns (address);\n\n    function addLiquidity(\n        address tokenA,\n        address tokenB,\n        uint amountADesired,\n        uint amountBDesired,\n        uint amountAMin,\n        uint amountBMin,\n        address to,\n        uint deadline\n    ) external returns (uint amountA, uint amountB, uint liquidity);\n    function addLiquidityETH(\n        address token,\n        uint amountTokenDesired,\n        uint amountTokenMin,\n        uint amountETHMin,\n        address to,\n        uint deadline\n    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);\n    function removeLiquidity(\n        address tokenA,\n        address tokenB,\n        uint liquidity,\n        uint amountAMin,\n        uint amountBMin,\n        address to,\n        uint deadline\n    ) external returns (uint amountA, uint amountB);\n    function removeLiquidityETH(\n        address token,\n        uint liquidity,\n        uint amountTokenMin,\n        uint amountETHMin,\n        address to,\n        uint deadline\n    ) external returns (uint amountToken, uint amountETH);\n    function removeLiquidityWithPermit(\n        address tokenA,\n        address tokenB,\n        uint liquidity,\n        uint amountAMin,\n        uint amountBMin,\n        address to,\n        uint deadline,\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\n    ) external returns (uint amountA, uint amountB);\n    function removeLiquidityETHWithPermit(\n        address token,\n        uint liquidity,\n        uint amountTokenMin,\n        uint amountETHMin,\n        address to,\n        uint deadline,\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\n    ) external returns (uint amountToken, uint amountETH);\n    function swapExactTokensForTokens(\n        uint amountIn,\n        uint amountOutMin,\n        address[] calldata path,\n        address to,\n        uint deadline\n    ) external returns (uint[] memory amounts);\n    function swapTokensForExactTokens(\n        uint amountOut,\n        uint amountInMax,\n        address[] calldata path,\n        address to,\n        uint deadline\n    ) external returns (uint[] memory amounts);\n    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)\n        external\n        payable\n        returns (uint[] memory amounts);\n    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)\n        external\n        returns (uint[] memory amounts);\n    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)\n        external\n        returns (uint[] memory amounts);\n    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)\n        external\n        payable\n        returns (uint[] memory amounts);\n\n    function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);\n    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);\n    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);\n    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);\n    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

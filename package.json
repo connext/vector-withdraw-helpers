@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
+  "files": ["artifacts"],
   "scripts": {
     "build": "npm run clean && npm run compile",
     "clean": "npx hardhat clean",
