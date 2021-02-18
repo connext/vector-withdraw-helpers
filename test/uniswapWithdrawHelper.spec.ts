@@ -98,7 +98,6 @@ const { expect } = chai;
 
 describe("UniswapWithdrawHelper", () => {
   let uniRouter: IUniswapV2Router02;
-  let uniFactory: IUniswapV2Factory;
   let deployer: string;
   let tokenA: IERC20;
   let tokenB: IERC20;
@@ -106,7 +105,6 @@ describe("UniswapWithdrawHelper", () => {
   beforeEach(async () => {
     ({
       uniRouter,
-      uniFactory,
       deployer,
       tokenA,
       tokenB,
@@ -128,6 +126,7 @@ describe("UniswapWithdrawHelper", () => {
       to: deployer,
       tokenA: tokenA.address,
       tokenB: tokenB.address,
+      path: [tokenA.address, tokenB.address],
     });
     console.log("callData: ", callData);
     expect(callData).to.be.ok;

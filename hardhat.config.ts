@@ -61,19 +61,6 @@ const config: HardhatUserConfig = {
     // Obtain one at https://etherscan.io/
     apiKey: ETHERSCAN_API_KEY,
   },
-  external: {
-    contracts: [
-      {
-        artifacts: "node_modules/@uniswap/v2-core/build",
-      },
-      {
-        artifacts: "node_modules/@uniswap/v2-periperhy/build",
-      },
-      {
-        artifacts: "./test-artifacts",
-      },
-    ],
-  },
 };
 
 export default config;

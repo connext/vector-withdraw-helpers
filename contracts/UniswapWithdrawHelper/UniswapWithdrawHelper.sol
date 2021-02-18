@@ -23,6 +23,7 @@ contract UniswapWithdrawHelper is WithdrawHelper {
     uint amountOutMin;
     address tokenA;
     address tokenB;
+    address[] path;
     address to;
     address router;
   }
@@ -44,13 +45,10 @@ contract UniswapWithdrawHelper is WithdrawHelper {
     }
 
     uint[] memory amounts;
-    address[] memory path = new address[](2);
-    path[0] = swapData.tokenA;
-    path[1] = swapData.tokenB;
     if (swapData.tokenA == address(0)) {
       amounts = IUniswapV2Router02(swapData.router).swapExactETHForTokens(
         swapData.amountOutMin, 
-        path, 
+        swapData.path, 
         swapData.to, 
         block.timestamp
       );
@@ -58,7 +56,7 @@ contract UniswapWithdrawHelper is WithdrawHelper {
       amounts = IUniswapV2Router02(swapData.router).swapExactTokensForETH(
         swapData.amountIn,
         swapData.amountOutMin, 
-        path, 
+        swapData.path, 
         swapData.to, 
         block.timestamp
       );
@@ -66,7 +64,7 @@ contract UniswapWithdrawHelper is WithdrawHelper {
       amounts = IUniswapV2Router02(swapData.router).swapExactTokensForTokens(
         swapData.amountIn,
         swapData.amountOutMin, 
-        path, 
+        swapData.path, 
         swapData.to, 
         block.timestamp
       );
