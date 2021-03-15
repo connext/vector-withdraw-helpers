@@ -12,7 +12,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [],
     log: true,
-    deterministicDeployment: true,
+    deterministicDeployment: false,
   });
 };
 export default func;

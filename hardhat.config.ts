@@ -4,7 +4,7 @@ dotEnvConfig();
 import { HardhatUserConfig } from "hardhat/types";
 
 import "@nomiclabs/hardhat-waffle";
-import "hardhat-typechain";
+import "@typechain/hardhat";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-deploy-ethers";
 import "hardhat-deploy";
