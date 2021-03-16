@@ -34,7 +34,7 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
     IERC20 underlying = IERC20(upgradeData.underlying);
 
     underlying.approve(upgradeData.superToken, upgradeData.amount);
-    superToken.upgradeTo(upgradeData.to, upgradeData.amount);
+    superToken.upgradeTo(upgradeData.to, upgradeData.amount, "");
 
     // if we have gasToken available on this contract, send them
     // TODO: is there a better way to do this?
