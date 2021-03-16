@@ -12,7 +12,6 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
     address underlying;
     uint amount;
     address to;
-    address gasToken;
     uint gasAmount;
   }
 
@@ -38,9 +37,8 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
 
     // if we have gasToken available on this contract, send them
     // TODO: is there a better way to do this?
-    IERC20 gasToken = IERC20(upgradeData.gasToken);
-    if (gasToken.balanceOf(address(this)) >= upgradeData.amount) {
-      gasToken.transfer(upgradeData.to, upgradeData.gasAmount);
+    if (address(this).balance >= upgradeData.amount) {
+      payable(address(upgradeData.to)).transfer(upgradeData.gasAmount);
     }
   }
 }
