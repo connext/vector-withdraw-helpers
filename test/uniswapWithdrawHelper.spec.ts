@@ -1,18 +1,18 @@
-import { ethers, deployments, getNamedAccounts } from "hardhat";
-import chai from "chai";
-import { solidity } from "ethereum-waffle";
-import {
-  UniswapWithdrawHelper,
-  IUniswapV2Router02,
-  IUniswapV2Factory,
-  IERC20,
-} from "../typechain";
-import { constants, Contract, Signer } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-
 import ERC20 from "@uniswap/v2-core/build/ERC20.json";
 import UniswapV2Factory from "@uniswap/v2-core/build/UniswapV2Factory.json";
 import UniswapV2Router from "@uniswap/v2-periphery/build/UniswapV2Router02.json";
+import chai from "chai";
+import { solidity } from "ethereum-waffle";
+import { constants, Contract, Signer } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+import { deployments, ethers, getNamedAccounts } from "hardhat";
+
+import {
+  IERC20,
+  IUniswapV2Factory,
+  IUniswapV2Router02,
+  UniswapWithdrawHelper,
+} from "../typechain";
 
 async function deployContract<T = Contract>(
   artifacts: any,
@@ -103,13 +103,7 @@ describe("UniswapWithdrawHelper", () => {
   let tokenB: IERC20;
 
   beforeEach(async () => {
-    ({
-      uniRouter,
-      deployer,
-      tokenA,
-      tokenB,
-      deployer,
-    } = await setupTest());
+    ({ uniRouter, deployer, tokenA, tokenB, deployer } = await setupTest());
   });
 
   it("should swap tokens", async () => {
