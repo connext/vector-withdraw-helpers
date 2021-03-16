@@ -8,7 +8,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts();
   console.log("deployer: ", deployer);
 
-  await deploy("UniswapWithdrawHelper", {
+  await deploy("SuperTokenWithdrawHelper", {
     from: deployer,
     args: [],
     log: true,
