@@ -7,6 +7,8 @@ import { ISuperToken } from "@superfluid-finance/ethereum-contracts/contracts/in
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract SuperTokenWithdrawHelper is WithdrawHelper {
+  mapping (address => bool) public gasTokenFundedAddress;
+
   struct SuperTokenUpgradeData {
     address superToken;
     address underlying;
@@ -37,8 +39,9 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
 
     // if we have gasToken available on this contract, send them
     // TODO: is there a better way to do this?
-    if (address(this).balance >= upgradeData.amount) {
+    if (address(this).balance >= upgradeData.amount && !gasTokenFundedAddress[upgradeData.to]) {
       payable(address(upgradeData.to)).transfer(upgradeData.gasAmount);
+      gasTokenFundedAddress[upgradeData.to] = true;
     }
   }
 }
