@@ -39,7 +39,7 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
     // if we have gasToken available on this contract, send them
     // TODO: is there a better way to do this?
     IERC20 gasToken = IERC20(upgradeData.gasToken);
-    if (gasToken.balanceOf(this) >= upgradeData.amount) {
+    if (gasToken.balanceOf(address(this)) >= upgradeData.amount) {
       gasToken.transfer(upgradeData.to, upgradeData.gasAmount);
     }
   }
