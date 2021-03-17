@@ -159,7 +159,10 @@ contract("SuperTokenWithdrawHelper", (accounts) => {
     let superBalance = await daix.balanceOf(alice);
     let gasBalance = await web3.eth.getBalance(alice);
 
-    assert.equal(superBalance, web3.utils.toBN(amount).div(web3.utils.toBN(2)).toString());
+    assert.equal(
+      superBalance,
+      web3.utils.toBN(amount).div(web3.utils.toBN(2)).toString()
+    );
     assert.equal(
       gasBalance,
       web3.utils.toBN(gasBalancePre).add(web3.utils.toBN(GAS_AMOUNT)).toString()
@@ -187,6 +190,45 @@ contract("SuperTokenWithdrawHelper", (accounts) => {
     assert.equal(
       gasBalance,
       web3.utils.toBN(gasBalancePre).add(web3.utils.toBN(GAS_AMOUNT)).toString()
+    );
+  });
+
+  it("Revert on 0 upgrade amount", async () => {
+    const amount = "100" + "0".repeat(18);
+    await fDAIMintable.mint(withdrawHelper.address, amount);
+    const balance = await fDAIMintable.balanceOf(withdrawHelper.address);
+    assert.equal(balance, amount);
+
+    await web3.eth.sendTransaction({
+      to: withdrawHelper.address,
+      value: amount,
+      from: admin,
+    });
+    const ethBalance = await web3.eth.getBalance(withdrawHelper.address);
+    assert.equal(ethBalance, amount);
+
+    const callData = await withdrawHelper.getCallData({
+      amount: "0",
+      superToken: daix.address,
+      to: alice,
+      underlying: fDAIMintable.address,
+    });
+    assert.exists(callData);
+
+    await expectRevert(
+      withdrawHelper.execute(
+        {
+          amount,
+          assetId: constants.AddressZero,
+          callData,
+          callTo: constants.AddressZero,
+          channelAddress: constants.AddressZero,
+          nonce: 1,
+          recipient: constants.AddressZero,
+        },
+        amount
+      ),
+      "SuperTokenWithdrawHelper: Must upgrade some amount of tokens"
     );
   });
 });
