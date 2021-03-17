@@ -1,6 +1,8 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
+const GAS_AMOUNT = "100";
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
@@ -8,9 +10,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts();
   console.log("deployer: ", deployer);
 
-  await deploy("UniswapWithdrawHelper", {
+  await deploy("SuperTokenWithdrawHelper", {
     from: deployer,
-    args: [],
+    args: [GAS_AMOUNT],
     log: true,
     deterministicDeployment: false,
   });

@@ -3,6 +3,7 @@ pragma solidity >=0.5.0;
 pragma experimental ABIEncoderV2;
 
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
+import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
 import '@uniswap/v2-core/contracts/interfaces/IERC20.sol';
 
 import "../common/WithdrawHelper.sol";

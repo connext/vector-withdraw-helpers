@@ -1,13 +1,12 @@
-import { config as dotEnvConfig } from "dotenv";
-dotEnvConfig();
-
-import { HardhatUserConfig } from "hardhat/types";
-
+import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import "@nomiclabs/hardhat-etherscan";
-import "hardhat-deploy-ethers";
+import { config as dotEnvConfig } from "dotenv";
 import "hardhat-deploy";
+import "hardhat-deploy-ethers";
+import "@nomiclabs/hardhat-truffle5";
+import { HardhatUserConfig } from "hardhat/types";
+dotEnvConfig();
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
 const PRIVATE_KEY =
