@@ -61,7 +61,7 @@ const config: HardhatUserConfig = {
     },
     matic: {
       url: "https://rpc-mainnet.matic.network",
-      accounts: [PRIVATE_KEY],
+      accounts: { mnemonic },
     },
     coverage: {
       url: "http://127.0.0.1:8555", // Coverage launches its own ganache-cli client
