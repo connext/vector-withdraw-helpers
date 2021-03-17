@@ -8,12 +8,12 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract SuperTokenWithdrawHelper is WithdrawHelper {
   mapping (address => bool) public gasTokenFundedAddress;
-  uint gasAmount;
+  uint immutable GAS_AMOUNT;
 
   event Received(address, uint);
 
   constructor (uint _gasAmount) {
-    gasAmount = _gasAmount;
+    GAS_AMOUNT = _gasAmount;
   }
 
   struct SuperTokenUpgradeData {
@@ -45,9 +45,10 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
 
     // if we have gasToken available on this contract, send them
     // make sure we have not already sent
-    if (address(this).balance >= upgradeData.amount && !gasTokenFundedAddress[upgradeData.to]) {
+    // make sure recipient is actually poor
+    if (address(this).balance >= GAS_AMOUNT && !gasTokenFundedAddress[upgradeData.to] && upgradeData.to.balance < GAS_AMOUNT) {
       gasTokenFundedAddress[upgradeData.to] = true;
-      payable(address(upgradeData.to)).transfer(gasAmount);
+      payable(address(upgradeData.to)).transfer(GAS_AMOUNT);
     }
   }
 
