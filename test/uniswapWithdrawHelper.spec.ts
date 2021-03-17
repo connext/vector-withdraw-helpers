@@ -5,7 +5,7 @@ import chai from "chai";
 import { solidity } from "ethereum-waffle";
 import { constants, Contract, Signer } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { deployments, ethers, getNamedAccounts } from "hardhat";
+import { deployments, ethers } from "hardhat";
 
 import {
   IERC20,

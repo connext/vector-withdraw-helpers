@@ -4,9 +4,9 @@ import "@typechain/hardhat";
 import { config as dotEnvConfig } from "dotenv";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
+import "@nomiclabs/hardhat-truffle5";
 import { HardhatUserConfig } from "hardhat/types";
 dotEnvConfig();
-
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
 const PRIVATE_KEY =
