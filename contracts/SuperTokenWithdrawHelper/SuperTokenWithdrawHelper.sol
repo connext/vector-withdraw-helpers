@@ -35,7 +35,7 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
     SuperTokenUpgradeData memory upgradeData = abi.decode(wd.callData, (SuperTokenUpgradeData));
 
     // stops random people from stealing our gas money without converting any tokens
-    require(upgradeData.amount > 0, "Must upgrade some amount of tokens");
+    require(upgradeData.amount > 0, "SuperTokenWithdrawHelper: Must upgrade some amount of tokens");
 
     ISuperToken superToken = ISuperToken(upgradeData.superToken);
     IERC20 underlying = IERC20(upgradeData.underlying);
