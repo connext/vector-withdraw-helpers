@@ -122,7 +122,6 @@ describe("UniswapWithdrawHelper", () => {
       tokenB: tokenB.address,
       path: [tokenA.address, tokenB.address],
     });
-    console.log("callData: ", callData);
     expect(callData).to.be.ok;
 
     await tokenA.transfer(uniswapWithdrawHelper.address, parseEther("500000"));
@@ -140,7 +139,6 @@ describe("UniswapWithdrawHelper", () => {
       parseEther("500000")
     );
     const receipt = await tx.wait();
-    console.log("receipt: ", receipt);
     expect(receipt).to.be.ok;
   });
   it("should swap eth for tokens");
