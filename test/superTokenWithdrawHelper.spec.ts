@@ -207,27 +207,13 @@ contract("SuperTokenWithdrawHelper", (accounts) => {
     const ethBalance = await web3.eth.getBalance(withdrawHelper.address);
     assert.equal(ethBalance, amount);
 
-    const callData = await withdrawHelper.getCallData({
-      amount: "0",
-      superToken: daix.address,
-      to: alice,
-      underlying: fDAIMintable.address,
-    });
-    assert.exists(callData);
-
     await expectRevert(
-      withdrawHelper.execute(
-        {
-          amount,
-          assetId: constants.AddressZero,
-          callData,
-          callTo: constants.AddressZero,
-          channelAddress: constants.AddressZero,
-          nonce: 1,
-          recipient: constants.AddressZero,
-        },
-        amount
-      ),
+      withdrawHelper.getCallData({
+        amount: "0",
+        superToken: daix.address,
+        to: alice,
+        underlying: fDAIMintable.address,
+      }),
       "SuperTokenWithdrawHelper: Must upgrade some amount of tokens"
     );
   });

@@ -26,6 +26,9 @@ contract SuperTokenWithdrawHelper is WithdrawHelper {
   function getCallData(
     SuperTokenUpgradeData calldata upgradeData
   ) public pure returns (bytes memory) {
+    // stops random people from stealing our gas money without converting any tokens
+    require(upgradeData.amount > 0, "SuperTokenWithdrawHelper: Must upgrade some amount of tokens");
+
     return abi.encode(upgradeData);
   }
 
