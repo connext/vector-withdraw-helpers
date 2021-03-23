@@ -63,6 +63,10 @@ const config: HardhatUserConfig = {
       url: "https://rpc-mainnet.matic.network",
       accounts: { mnemonic },
     },
+    goerli: {
+      url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: { mnemonic },
+    },
     coverage: {
       url: "http://127.0.0.1:8555", // Coverage launches its own ganache-cli client
     },
